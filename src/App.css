@@ -36,3 +36,72 @@
     transform: rotate(360deg);
   }
 }
+
+input {
+  width: 450px;
+  height: 30px;
+}
+
+.responsePart {
+  display: flex;
+  justify-content: space-between;
+}
+
+.postman {
+  padding: 15px;
+}
+textarea {
+  resize: none;
+  margin-top: 15px;
+}
+
+select {
+  height: 35px;
+  background-color: #f3f3f3;
+}
+
+button {
+  background-color: #017bfe;
+  color: white;
+  border: none;
+  height: 35px;
+  border-radius: 4px;
+  margin: 2px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+#inputBelow{
+  width: 24rem;
+}
+
+.queryInpt{
+  width: 150px;
+  margin-top: 5px;
+}
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  cursor: pointer;
+}
