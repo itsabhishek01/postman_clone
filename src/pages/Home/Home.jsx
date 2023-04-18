@@ -1,72 +1,58 @@
 import React, { useState } from "react";
-import { UrlBox } from "../../components";
-
-export default function Home() {
-  //Tabs
+import UrlBox from "../../components/UrlBox/UrlBox";
+export default function Tabs() {
   const [tabs, setTabs] = useState([{ id: 1 }]);
-  const [activeTab, setActiveTab] = useState(0);
-
-  //Add tab functionlity
+  const [activeTab, setActiveTab] = useState(1);
+  const [maxId, setMaxId] = useState(1);
   const addTab = () => {
-    const newTab = { id: tabs.length + 1 };
+    const newTab = { id: maxId + 1 };
     setTabs([...tabs, newTab]);
     setActiveTab(newTab.id);
+    setMaxId(newTab.id);
   };
-
-  //Close tab functionality
   const closeTab = (tabId) => {
-    const newupdateTab = tabs.filter((tab) => tab.id !== tabId);
-    setTabs(newupdateTab);
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+    setTabs(newTabs);
     if (activeTab === tabId) {
-      setActiveTab(newupdateTab.length > 0 ? newupdateTab[0].id : null);
-      // setData(data);
+      setActiveTab(newTabs.length > 0 ? newTabs[0].id : null);
     }
   };
-
   return (
-    <div>
-      <h3>Check Your API</h3>
-
+    <div className="tabs-container">
       <ul>
         {tabs.map((tab) => (
           <li key={tab.id}>
-            <i
+            <a
+              className={`tab-link ${
+                tab.id === activeTab ? "tab-link-active" : ""
+              }`}
               onClick={() => setActiveTab(tab.id)}
-              style={{ cursor: "pointer" }}
             >
-              {activeTab === 0 && "Create a New Tab"}
-              {activeTab !== 0 && (
+              {(
                 <i
                   style={{
-                    borderBottom: activeTab === tab.id && "4px solid white",marginLeft:'8px'
+                    borderBottom: activeTab === tab.id && "4px solid white",
+                    marginLeft: "8px",
                   }}
                 >{`Tab ${tab.id}`}</i>
               )}
               {tab.id !== 1 && (
-                <button
-                  onClick={() => closeTab(tab.id)}
-                  style={{ backgroundColor: "red" }}
-                >
-                  Delete
-                </button>
+                <i class="fa fa-trash" onClick={() => closeTab(tab.id)} style={{marginLeft:'8px'}}>
+                </i>
               )}
-            </i>
+            </a>
           </li>
         ))}
         <li>
-          {activeTab !== 0 && <button
-            onClick={addTab}
-            style={{ backgroundColor: "black", cursor: "pointer" }}
-          >
-            New TAB
-          </button>}
+          <button className="tab-add" onClick={addTab}>
+            New Tab
+          </button>
         </li>
       </ul>
-
       {tabs.map((tab, index) => (
         <div
-          key={index}
-          className={index + 1 === activeTab ? "tab-active" : "tab"}
+          key={tab.id}
+          className={tab.id === activeTab ? "tab-active" : "tab"}
         >
           <UrlBox />
         </div>
@@ -74,3 +60,12 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
