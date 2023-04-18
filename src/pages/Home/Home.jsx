@@ -4,7 +4,7 @@ import { UrlBox } from "../../components";
 export default function Home() {
   return (
     <div>
-      <h2>Check Your API</h2>
+      <h3>Check Your API</h3>
       <UrlBox />
     </div>
   );

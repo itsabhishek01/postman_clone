@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useEffect } from "react";
 
 function UrlBox() {
   //states fot the url , and api
   const [urlStates, setUrlStates] = useState({
     userSelection: "GET",
-    URL: undefined,
+    URL: "",
     body: {},
     id: undefined,
     header: JSON.stringify({
@@ -61,8 +62,27 @@ function UrlBox() {
     }));
   };
 
-  console.log(urlStates.queryParams);
-
+  useEffect(() => {
+    if (urlStates.URL !== "") {
+      const newURL = new URL(urlStates.URL);
+      const searchParams = newURL.searchParams;
+      searchParams.forEach((_, paramKey) => {
+        if (paramKey !== urlStates.key) {
+          searchParams.delete(paramKey);
+        }
+      });
+      if (urlStates.value || urlStates.key) {
+        newURL.searchParams.set(urlStates.key, urlStates.value);
+      } else {
+        newURL.searchParams.delete(urlStates.key, urlStates.value);
+      }
+      setUrlStates((prevState) => ({
+        ...prevState,
+        URL: newURL,
+      }));
+    }
+  }, [urlStates.key, urlStates.value]);
+  
   //api get data function
   const getAPI_Data = (url) => {
     axios
@@ -134,7 +154,9 @@ function UrlBox() {
     e.preventDefault();
     if (urlStates.key !== "" && urlStates.value !== "") {
       axios
-        .get(`${urlStates.URL}?${urlStates.key}=${urlStates.value}`, { headers: JSON.parse(urlStates.header) })
+        .get(urlStates.URL, {
+          headers: JSON.parse(urlStates.header),
+        })
         .then((res) => setApiData((prevState) => ({ ...prevState, data: res })))
         .catch((_) =>
           setApiData((prevState) => ({
@@ -163,15 +185,15 @@ function UrlBox() {
     }
   };
 
-  axios.interceptors.request.use((req)=>{
-    document.getElementById('loading').style.display = "block";
+  axios.interceptors.request.use((req) => {
+    document.getElementById("loading").style.display = "block";
     return req;
-  })
+  });
 
-  axios.interceptors.response.use((req)=>{
-    document.getElementById('loading').style.display = "none";
+  axios.interceptors.response.use((req) => {
+    document.getElementById("loading").style.display = "none";
     return req;
-  })
+  });
 
   return (
     <div>
@@ -195,6 +217,7 @@ function UrlBox() {
           type="url"
           name=""
           id=""
+          value={urlStates.URL}
           onChange={(e) =>
             setUrlStates((prevState) => ({ ...prevState, URL: e.target.value }))
           }
@@ -207,40 +230,6 @@ function UrlBox() {
         )}
       </form>
       <div className="responsePart">
-        <span>
-          <div>
-            <i>RESPONSE</i>
-          </div>
-
-          <textarea
-            id="json"
-            value={JSON.stringify(apiData.data.data, null, 2)}
-            cols="65"
-            rows="32"
-            readOnly
-          />
-        </span>
-        <span>
-          <div>
-            <i>Query Parms</i>
-          </div>
-          <input
-            className="queryInpt"
-            type="text"
-            name=""
-            id=""
-            placeholder="key"
-            onChange={handleChangekey}
-          />
-          <input
-            className="queryInpt"
-            type="text"
-            name=""
-            id=""
-            placeholder="value"
-            onChange={handleChangevalue}
-          />
-        </span>
         <span>
           <div>
             <i>HEADER</i>
@@ -317,6 +306,41 @@ function UrlBox() {
               {isValid && <div className="valid">JSON is valid.</div>}
             </div>
           )}
+        </span>
+        <span>
+          <div>
+            <i>Query Parms</i>
+          </div>
+          <input
+            className="queryInpt"
+            type="text"
+            name=""
+            id=""
+            placeholder="key"
+            onChange={handleChangekey}
+          />
+          <input
+            className="queryInpt"
+            type="text"
+            name=""
+            id=""
+            placeholder="value"
+            onChange={handleChangevalue}
+          />
+        </span>
+
+        <span>
+          <div>
+            <i>RESPONSE</i>
+          </div>
+
+          <textarea
+            id="json"
+            value={JSON.stringify(apiData.data.data, null, 2)}
+            cols="65"
+            rows="32"
+            readOnly
+          />
         </span>
       </div>
     </div>

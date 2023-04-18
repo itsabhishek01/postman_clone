@@ -45,18 +45,22 @@ input {
 .responsePart {
   display: flex;
   justify-content: space-between;
+  margin-top: 15px;
 }
 
 .postman {
   padding: 15px;
+  color: white;
 }
 textarea {
   resize: none;
   margin-top: 15px;
+  background-color: #282c34;
+  color: white;
 }
 
 select {
-  height: 35px;
+  height: 36px;
   background-color: #f3f3f3;
 }
 
@@ -64,24 +68,28 @@ button {
   background-color: #017bfe;
   color: white;
   border: none;
-  height: 35px;
+  height: 37px;
   border-radius: 4px;
   margin: 2px;
 }
 
 input:focus,
-select:focus,
-textarea:focus {
+select:focus {
   outline: none;
 }
 
 #inputBelow{
-  width: 24rem;
+  width: 29.3rem;
+  background-color: #282c34;
+  color: white;
 }
 
 .queryInpt{
   width: 150px;
   margin-top: 5px;
+  background-color: #282c34;
+  color: white;
+  margin-top: 17px;
 }
 
 
