@@ -4,6 +4,7 @@ export default function Tabs() {
   const [tabs, setTabs] = useState([{ id: 1 }]);
   const [activeTab, setActiveTab] = useState(1);
   const [maxId, setMaxId] = useState(1);
+  
   const addTab = () => {
     const newTab = { id: maxId + 1 };
     setTabs([...tabs, newTab]);
@@ -37,7 +38,7 @@ export default function Tabs() {
                 >{`Tab ${tab.id}`}</i>
               )}
               {tab.id !== 1 && (
-                <i class="fa fa-trash" onClick={() => closeTab(tab.id)} style={{marginLeft:'8px'}}>
+                <i class="fa fa-trash" onClick={() => closeTab(tab.id)} style={{marginLeft:'8px',cursor:'pointer'}}>
                 </i>
               )}
             </a>
