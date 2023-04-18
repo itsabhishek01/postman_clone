@@ -47,10 +47,17 @@ function UrlBox() {
 
   //handling change in query Params
 
-  const handleChangeQueryParams = (e) => {
+  const handleChangekey = (e) => {
     setUrlStates((prevState) => ({
       ...prevState,
-      queryParams: e.target.value,
+      key: e.target.value,
+    }));
+  };
+
+  const handleChangevalue = (e) => {
+    setUrlStates((prevState) => ({
+      ...prevState,
+      value: e.target.value,
     }));
   };
 
@@ -125,6 +132,22 @@ function UrlBox() {
 
   const formSubmission = (e) => {
     e.preventDefault();
+    if (urlStates.key !== "" && urlStates.value !== "") {
+      axios
+        .get(`${urlStates.URL}?${urlStates.key}=${urlStates.value}`, { headers: JSON.parse(urlStates.header) })
+        .then((res) => setApiData((prevState) => ({ ...prevState, data: res })))
+        .catch((_) =>
+          setApiData((prevState) => ({
+            ...prevState,
+            data: {
+              data: {
+                data: ["Not A Valid API"],
+              },
+            },
+          }))
+        );
+    }
+
     if (urlStates.userSelection === "GET") {
       getAPI_Data(urlStates.URL);
     }
@@ -140,7 +163,16 @@ function UrlBox() {
     }
   };
 
-  console.log(apiData.data);
+  axios.interceptors.request.use((req)=>{
+    document.getElementById('loading').style.display = "block";
+    return req;
+  })
+
+  axios.interceptors.response.use((req)=>{
+    document.getElementById('loading').style.display = "none";
+    return req;
+  })
+
   return (
     <div>
       <form onSubmit={formSubmission}>
@@ -183,19 +215,39 @@ function UrlBox() {
           <textarea
             id="json"
             value={JSON.stringify(apiData.data.data, null, 2)}
-            cols="80"
+            cols="65"
             rows="32"
             readOnly
           />
         </span>
-        <span></span>
+        <span>
+          <div>
+            <i>Query Parms</i>
+          </div>
+          <input
+            className="queryInpt"
+            type="text"
+            name=""
+            id=""
+            placeholder="key"
+            onChange={handleChangekey}
+          />
+          <input
+            className="queryInpt"
+            type="text"
+            name=""
+            id=""
+            placeholder="value"
+            onChange={handleChangevalue}
+          />
+        </span>
         <span>
           <div>
             <i>HEADER</i>
           </div>
           <div>
             <textarea
-              cols="80"
+              cols="65"
               rows="12"
               placeholder="Enter the Header"
               value={urlStates.header}
@@ -208,7 +260,7 @@ function UrlBox() {
                 <i>BODY</i>
               </div>
               <textarea
-                cols="80"
+                cols="65"
                 rows="16"
                 placeholder="Enter the Body"
                 onChange={handleBodyChange}
@@ -224,7 +276,7 @@ function UrlBox() {
                 <i>BODY</i>
               </div>
               <textarea
-                cols="80"
+                cols="65"
                 rows="16"
                 placeholder="Enter the Body"
                 onChange={handleBodyChange}
@@ -256,7 +308,7 @@ function UrlBox() {
                 <i>BODY</i>
               </div>
               <textarea
-                cols="80"
+                cols="65"
                 rows="12"
                 placeholder="Enter the Body"
                 onChange={handleBodyChange}
