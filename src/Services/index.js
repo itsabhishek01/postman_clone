@@ -1,3 +1,3 @@
-import { axiosInstance } from "./axios/axios";
+import { axiosInstance } from "./axiosInstance/axiosInstance";
 
 export {axiosInstance}

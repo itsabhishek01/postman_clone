@@ -15,10 +15,8 @@ export default function Tabs() {
   const closeTab = (tabId) => {
     const newTabs = tabs.filter((tab) => tab.id !== tabId);
     setTabs(newTabs);
-    if (activeTab === tabId) {
-      setActiveTab(newTabs.length > 0 ? newTabs[0].id : null);
-    }
   };
+
   return (
     <div>
       <ul>
@@ -35,9 +33,8 @@ export default function Tabs() {
               }
               {tab.id !== 1 && (
                 <i
-                  class="fa fa-trash"
+                  class="fa fa-trash delete"
                   onClick={() => closeTab(tab.id)}
-                  style={{ marginLeft: "8px", cursor: "pointer" }}
                 ></i>
               )}
             </i>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useEffect } from "react";
 import { axiosInstance } from "../../Services";
+import { useEffect } from "react";
+import { CircularProgress } from "@mui/material";
 
 function UrlBox() {
   //states fot the url , and api
@@ -10,16 +10,13 @@ function UrlBox() {
     URL: "",
     body: {},
     id: undefined,
-    header: JSON.stringify({
-      "content-type": "application/json",
-    }),
     key: "",
     value: "",
   });
-
   const [apiData, setApiData] = useState({});
-
+  const [apiError, setApiError] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleBodyChange = (e) => {
     setUrlStates((prevState) => ({
@@ -32,13 +29,6 @@ function UrlBox() {
     } catch (error) {
       setIsValid(false);
     }
-  };
-
-  const handleChangeHeader = (e) => {
-    setUrlStates((prevState) => ({
-      ...prevState,
-      header: e.target.value,
-    }));
   };
 
   const handleChangekey = (e) => {
@@ -55,13 +45,25 @@ function UrlBox() {
     }));
   };
 
+  const handleIDChange = (e) =>
+    setUrlStates((prevState) => ({
+      ...prevState,
+      id: e.target.value,
+    }));
+
+  const handleURLChange = (e) =>
+    setUrlStates((prevState) => ({
+      ...prevState,
+      URL: e.target.value,
+    }));
+
   useEffect(() => {
     if (urlStates.URL !== "") {
       const newURL = new URL(urlStates.URL);
       const searchParams = newURL.searchParams;
-      searchParams.forEach((_, paramKey) => {
-        if (paramKey !== urlStates.key) {
-          searchParams.delete(paramKey);
+      searchParams.forEach((_, keyOfParam) => {
+        if (keyOfParam !== urlStates.key) {
+          searchParams.delete(keyOfParam);
         }
       });
       if (urlStates.value || urlStates.key) {
@@ -76,54 +78,53 @@ function UrlBox() {
     }
   }, [urlStates.key, urlStates.value]);
 
+  const sendAPIData = async (method, url, data) => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance({
+        method,
+        url,
+        data,
+      });
+      setApiData(response.data);
+      setLoading(false);
+      setApiError("")
+    } catch (error) {
+      setLoading(false);
+      setApiError(error.message);
+      setApiData({})
+    }
+  };
+
   const formSubmission = async (e) => {
     e.preventDefault();
     try {
-      let response;
       switch (urlStates.userSelection) {
         case "GET":
-          response = await axiosInstance.get(urlStates.URL);
+          sendAPIData("GET", urlStates.URL);
           break;
         case "POST":
-          response = await axiosInstance.post(urlStates.URL, JSON.parse(urlStates.body));
+          sendAPIData("POST", urlStates.URL, JSON.parse(urlStates.body));
           break;
         case "DELETE":
-          response = await axiosInstance.delete(`${urlStates.URL}/${urlStates.id}`, {
-            body: JSON.parse(urlStates.body),
-          });
+          sendAPIData("DELETE", `${urlStates.URL}/${urlStates.id}`);
           break;
         case "PUT":
-          response = await axiosInstance.put(`${urlStates.URL}/${urlStates.id}`, {
-            body: JSON.parse(urlStates.body),
-          });
+          sendAPIData("PUT",`${urlStates.URL}/${urlStates.id}`,JSON.parse(urlStates.body));
           break;
         default:
-          response = await axiosInstance.get(urlStates.URL);
+          sendAPIData("GET", urlStates.URL);
           break;
       }
-      setApiData(response.data);
-      console.log(response.data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  axios.interceptors.request.use((req) => {
-    document.getElementById("loading").style.display = "block";
-    return req;
-  });
-
-  axios.interceptors.response.use((req) => {
-    document.getElementById("loading").style.display = "none";
-    return req;
-  });
-
   return (
     <div>
       <form onSubmit={formSubmission}>
         <select
-          name=""
-          id=""
           onChange={(e) =>
             setUrlStates((prevState) => ({
               ...prevState,
@@ -136,97 +137,41 @@ function UrlBox() {
           <option value="DELETE">DELETE</option>
           <option value="PUT">PUT</option>
         </select>
-        <input
-          type="url"
-          name=""
-          id=""
-          value={urlStates.URL}
-          onChange={(e) =>
-            setUrlStates((prevState) => ({
-              ...prevState,
-              URL: e.target.value,
-            }))
-          }
-        />
+        <input type="url" value={urlStates.URL} onChange={handleURLChange} />
         <button>DONE</button>
       </form>
+      {apiError}
       <div className="responsePart">
         <span>
+          {urlStates.userSelection === "PUT" ||
+          urlStates.userSelection === "DELETE" ? (
+            <div>
+              <div>
+                <i>ID</i>
+              </div>
+              <input
+                type="text"
+                placeholder="id"
+                onChange={handleIDChange}
+                id="inputBelow"
+              />
+            </div>
+          ) : (
+            ""
+          )}
           <div>
-            <i>HEADER</i>
-          </div>
-          <div>
+            <div>
+              <i>BODY</i>
+            </div>
             <textarea
               cols="65"
-              rows="12"
-              placeholder="Enter the Header"
-              value={urlStates.header}
-              onChange={handleChangeHeader}
-            ></textarea>
+              rows="16"
+              placeholder="Enter the Body"
+              onChange={handleBodyChange}
+            />
+            {!isValid && <div className="error">Invalid JSON format.</div>}
+            {isValid && <div className="valid">JSON is valid.</div>}
           </div>
-          {urlStates.userSelection === "POST" && (
-            <div>
-              <div>
-                <i>BODY</i>
-              </div>
-              <textarea
-                cols="65"
-                rows="16"
-                placeholder="Enter the Body"
-                onChange={handleBodyChange}
-              />
-              {!isValid && <div className="error">Invalid JSON format.</div>}
-              {isValid && <div className="valid">JSON is valid.</div>}
-            </div>
-          )}
-
-          {urlStates.userSelection === "DELETE" && (
-            <div>
-              <div>
-                <i>BODY</i>
-              </div>
-              <textarea
-                cols="65"
-                rows="16"
-                placeholder="Enter the Body"
-                onChange={handleBodyChange}
-              />
-              {!isValid && <div className="error">Invalid JSON format.</div>}
-              {isValid && <div className="valid">JSON is valid.</div>}
-            </div>
-          )}
-
-          {urlStates.userSelection === "PUT" && (
-            <div>
-              <div>
-                <div>
-                  <i>ID</i>
-                </div>
-                <input
-                  type="text"
-                  placeholder="id"
-                  onChange={(e) =>
-                    setUrlStates((prevState) => ({
-                      ...prevState,
-                      id: e.target.value,
-                    }))
-                  }
-                  id="inputBelow"
-                />
-              </div>
-              <div>
-                <i>BODY</i>
-              </div>
-              <textarea
-                cols="65"
-                rows="12"
-                placeholder="Enter the Body"
-                onChange={handleBodyChange}
-              />
-              {!isValid && <div className="error">Invalid JSON format.</div>}
-              {isValid && <div className="valid">JSON is valid.</div>}
-            </div>
-          )}
         </span>
         <span>
           <div>
@@ -235,26 +180,26 @@ function UrlBox() {
           <input
             className="queryInpt"
             type="text"
-            name=""
-            id=""
             placeholder="key"
             onChange={handleChangekey}
           />
           <input
             className="queryInpt"
             type="text"
-            name=""
-            id=""
             placeholder="value"
             onChange={handleChangevalue}
           />
         </span>
 
         <span>
+          {loading && (
+            <div className="loader">
+              <CircularProgress />
+            </div>
+          )}
           <div>
             <i>RESPONSE</i>
           </div>
-
           <textarea
             id="json"
             value={JSON.stringify(apiData, null, 2)}
@@ -267,5 +212,4 @@ function UrlBox() {
     </div>
   );
 }
-
 export default UrlBox;
